@@ -3,8 +3,13 @@ package utils
 import (
 	"MyGoApi/models"
 	"fmt"
+	"github.com/astaxie/beego/logs"
 	"github.com/dgrijalva/jwt-go"
+
+
+	//"strings"
 	"time"
+	"github.com/astaxie/beego/context"
 )
 
 const (
@@ -109,3 +114,23 @@ func getHeaderTokenValue(tokenString string) string {
 	return fmt.Sprintf("Bearer %s", tokenString)
 }
 
+var FilterToken = func(ctx *context.Context) {
+	logs.Info("current router path is ", ctx.Request.RequestURI)
+	if ctx.Request.RequestURI != "/v1/login" && ctx.Input.Header("Authorization") == "" && ctx.Request.RequestURI != "/v1/register"  {
+		logs.Error("without token, unauthorized !!")
+		ctx.ResponseWriter.WriteHeader(401)
+		ctx.ResponseWriter.Write([]byte("no permission"))
+	}
+	if ctx.Request.RequestURI != "/v1/login" && ctx.Input.Header("Authorization") != "" && ctx.Request.RequestURI != "/v1/register"{
+		token := ctx.Input.Header("Authorization")
+
+		err := ValidateToken(token)
+		if err != nil {
+			ctx.ResponseWriter.WriteHeader(401)
+			ctx.ResponseWriter.Write([]byte("token invalid"))
+		}
+		// invoke ValidateToken in utils/token
+		RefreshToken(token)
+		// invalid or expired todo res 401
+	}
+}

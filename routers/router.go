@@ -9,11 +9,15 @@ package routers
 
 import (
 	"MyGoApi/controllers"
-
+	"MyGoApi/utils"
 	"github.com/astaxie/beego"
 )
 
+
+
+
 func init() {
+
 	ns := beego.NewNamespace("/v1",
 
 		beego.NSNamespace("/ads",
@@ -75,9 +79,15 @@ func init() {
 				&controllers.WebinfosController{},
 			),
 		),
+		beego.NSNamespace("/bese",
+			beego.NSInclude(
+				&controllers.BaseController{},
+			),
+		),
 	)
-
+	beego.InsertFilter("/*",beego.BeforeExec,utils.FilterToken)
 	beego.Router("/v1/login",&controllers.UsersController{},"post:Login")
 	beego.Router("/v1/register",&controllers.UsersController{},"post:Register")
+	beego.Router("/v1/refresh",&controllers.BaseController{},"post:RefreshToken")
 	beego.AddNamespace(ns)
 }

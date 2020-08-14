@@ -9,7 +9,6 @@ import (
 	"log"
 	"strconv"
 	"strings"
-
 	"github.com/astaxie/beego"
 )
 
@@ -72,7 +71,7 @@ func (c *UsersController) GetOne() {
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetUsersById(id)
 	if err != nil {
-		c.Data["json"] = Error(10001,err.Error())
+		c.Data["json"] = Error(err.Error())
 	} else {
 		c.Data["json"] = Success(v)
 	}
@@ -192,18 +191,17 @@ func (c *UsersController) Delete() {
 func (c *UsersController) Login() {
 	var data LoginVerify
 	var user models.Users
-	user.Id = 1
-	user.Name = "socket"
+	var token Token
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		beego.Info(data)
 		if err := utils.CheckLogin(data.Name,data.Password); err != "ok"{
-			c.Data["json"] = Error(10001,err)
+			c.Data["json"] = Error(err)
 		}else{
-			token := utils.GenerateToken(10,user)
+			token.Token = utils.GenerateToken(20,user)
 			c.Data["json"] = Success(token)
 		}
 	} else {
-		c.Data["json"] = Error(10001,err.Error())
+		c.Data["json"] = Error(err.Error())
 	}
 
 	c.ServeJSON()
@@ -216,12 +214,12 @@ func (c *UsersController) Register() {
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		beego.Info(data)
 		if err := utils.CheckRegister(data.Name,data.Email,data.Password,data.Repassword); err != "ok"{
-			c.Data["json"] = Error(10001,err)
+			c.Data["json"] = Error(err)
 		}else{
 			c.Data["json"] = Success("登录成功")
 		}
 	} else {
-		c.Data["json"] = Error(10001,err.Error())
+		c.Data["json"] = Error(err.Error())
 	}
 
 	c.ServeJSON()
