@@ -190,24 +190,11 @@ func (c *UsersController) Delete() {
 
 // @router /login [post]
 func (c *UsersController) Login() {
-	var L struct{
-		Username string
-		Password string
-	}
-
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &L); err == nil {
-		verify := validation.Validation{}
-		beego.Info(L)
-		beego.Info(L.Password)
-		verify.Required(L.Username,"username").Message("用户名必须填写")
-		verify.Required(L.Password,"password").Message("密码必须填写")
-		if verify.HasErrors() {
-			// 如果有错误信息，证明验证没通过
-			// 打印错误信息
-			for _, err := range verify.Errors {
-				c.Data["json"] = Error(utils.DataErr,err.Message)
-				break
-			}
+	var data LoginVerify
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
+		beego.Info(data)
+		if err := utils.CheckLogin(data.name,data.Password); err != "ok"{
+			c.Data["json"] = Error(10001,err)
 		}else{
 			c.Data["json"] = Success("登录成功")
 		}
@@ -220,6 +207,18 @@ func (c *UsersController) Login() {
 
 // @router /register [post]
 func (c *UsersController) Register() {
-	c.Data["json"] = Success("注册成功")
+
+	var data RegisterVerify
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
+		beego.Info(data)
+		if err := utils.CheckRegister(data.name,data.Email,data.Password,data.Repassword); err != "ok"{
+			c.Data["json"] = Error(10001,err)
+		}else{
+			c.Data["json"] = Success("登录成功")
+		}
+	} else {
+		c.Data["json"] = Error(10001,err.Error())
+	}
+
 	c.ServeJSON()
 }
