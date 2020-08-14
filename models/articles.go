@@ -11,17 +11,17 @@ import (
 )
 
 type Articles struct {
-	Id        int       `orm:"column(id);auto"`
-	Title     string    `orm:"column(title);size(191)"`
-	Desc      string    `orm:"column(desc);null"`
-	Img       string    `orm:"column(img);null"`
-	Content   string    `orm:"column(content);null"`
-	Clicks    int       `orm:"column(clicks);null"`
-	Classify  string    `orm:"column(classify);size(191);null"`
-	Like      int       `orm:"column(like);null"`
-	DeletedAt time.Time `orm:"column(deleted_at);type(timestamp);null"`
-	CreatedAt time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt time.Time `orm:"column(updated_at);type(timestamp);null"`
+	Id        int       `json:"id"           orm:"column(id);auto"`
+	Title     string    `json:"title"        orm:"column(title);size(191)"`
+	Desc      string    `json:"desc"         orm:"column(desc);null"`
+	Img       string    `json:"img"          orm:"column(img);null"`
+	Content   string    `json:"content"      orm:"column(content);null"`
+	Clicks    int       `json:"clicks"       orm:"column(clicks);null"`
+	Classify  string    `json:"classify"     orm:"column(classify);size(191);null"`
+	Like      int       `json:"like"         orm:"column(like);null"`
+	DeletedAt time.Time `json:"deleted_at"   orm:"column(deleted_at);type(timestamp);null"`
+	CreatedAt time.Time `json:"created_at"   orm:"column(created_at);type(timestamp);null"`
+	UpdatedAt time.Time `json:"updated_at"   orm:"column(updated_at);type(timestamp);null"`
 }
 
 func (t *Articles) TableName() string {

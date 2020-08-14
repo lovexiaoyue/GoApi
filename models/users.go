@@ -11,17 +11,17 @@ import (
 )
 
 type Users struct {
-	Id        int       `orm:"column(id);auto"`
-	Name      string    `orm:"column(name);size(191)"`
-	Email     string    `orm:"column(email);size(191);null"`
-	Phone     string    `orm:"column(phone);size(191);null"`
-	AvatarUrl string    `orm:"column(avatar_url);null"`
-	Password  string    `orm:"column(password);size(191)"`
-	Captcha   int       `orm:"column(captcha);null"`
-	Intro     string    `orm:"column(intro);null"`
-	IsAdmin   string    `orm:"column(is_admin);size(191);null"`
-	CreatedAt time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt time.Time `orm:"column(updated_at);type(timestamp);null"`
+	Id        int       `json:"id"                  orm:"column(id);auto"`
+	Name      string    `json:"name"                orm:"column(name);size(191)"`
+	Email     string    `json:"email"               orm:"column(email);size(191);null"`
+	Phone     string    `json:"phone"               orm:"column(phone);size(191);null"`
+	AvatarUrl string    `json:"avatar_url"          orm:"column(avatar_url);null"`
+	Password  string    `json:"password"            orm:"column(password);size(191)"`
+	Captcha   int       `json:"captcha"             orm:"column(captcha);null"`
+	Intro     string    `json:"intro"               orm:"column(intro);null"`
+	IsAdmin   string    `json:"is_admin"            orm:"column(is_admin);size(191);null"`
+	CreatedAt time.Time `json:"created_at"          orm:"column(created_at);type(timestamp);null"`
+	UpdatedAt time.Time `json:"updated_at"          orm:"column(updated_at);type(timestamp);null"`
 }
 
 func (t *Users) TableName() string {

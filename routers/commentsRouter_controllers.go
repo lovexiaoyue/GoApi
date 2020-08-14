@@ -412,6 +412,24 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["MyGoApi/controllers:UsersController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:UsersController"],
+        beego.ControllerComments{
+            Method: "Login",
+            Router: "/login",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["MyGoApi/controllers:UsersController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:UsersController"],
+        beego.ControllerComments{
+            Method: "Register",
+            Router: "/register",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["MyGoApi/controllers:WebinfosController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:WebinfosController"],
         beego.ControllerComments{
             Method: "Post",

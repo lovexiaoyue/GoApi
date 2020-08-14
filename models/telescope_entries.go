@@ -11,14 +11,14 @@ import (
 )
 
 type TelescopeEntries struct {
-	Id                   int       `orm:"column(sequence);auto"`
-	Uuid                 string    `orm:"column(uuid);size(36)"`
-	BatchId              string    `orm:"column(batch_id);size(36)"`
-	FamilyHash           string    `orm:"column(family_hash);size(191);null"`
-	ShouldDisplayOnIndex int8      `orm:"column(should_display_on_index)"`
-	Type                 string    `orm:"column(type);size(20)"`
-	Content              string    `orm:"column(content)"`
-	CreatedAt            time.Time `orm:"column(created_at);type(datetime);null"`
+	Id                   int       `json:"id"                          orm:"column(sequence);auto"`
+	Uuid                 string    `json:"uuid"                        orm:"column(uuid);size(36)"`
+	BatchId              string    `json:"batch_id"                    orm:"column(batch_id);size(36)"`
+	FamilyHash           string    `json:"family_hash"                 orm:"column(family_hash);size(191);null"`
+	ShouldDisplayOnIndex int8      `json:"should_display_on_index"     orm:"column(should_display_on_index)"`
+	Type                 string    `json:"type"                        orm:"column(type);size(20)"`
+	Content              string    `json:"content"                     orm:"column(content)"`
+	CreatedAt            time.Time `json:"created_at"                  orm:"column(created_at);type(datetime);null"`
 }
 
 func (t *TelescopeEntries) TableName() string {

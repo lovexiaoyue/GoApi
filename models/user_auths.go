@@ -10,11 +10,11 @@ import (
 )
 
 type UserAuths struct {
-	Id           int    `orm:"column(id);auto"`
-	UserId       uint   `orm:"column(user_id);null"`
-	IdentityType string `orm:"column(identity_type);size(191)"`
-	Identifier   string `orm:"column(identifier);size(191)"`
-	Password     string `orm:"column(password);size(191)"`
+	Id           int    `json:"id"              orm:"column(id);auto"`
+	UserId       uint   `json:"user_id"         orm:"column(user_id);null"`
+	IdentityType string `json:"identity_type"   orm:"column(identity_type);size(191)"`
+	Identifier   string `json:"identifier"      orm:"column(identifier);size(191)"`
+	Password     string `json:"password"        orm:"column(password);size(191)"`
 }
 
 func (t *UserAuths) TableName() string {

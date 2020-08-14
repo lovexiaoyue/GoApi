@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"MyGoApi/models"
+	"MyGoApi/utils"
 	"encoding/json"
 	"errors"
+	"github.com/astaxie/beego/validation"
+	"log"
 	"strconv"
 	"strings"
 
@@ -33,17 +36,28 @@ func (c *UsersController) URLMapping() {
 // @router / [post]
 func (c *UsersController) Post() {
 	var v models.Users
-	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddUsers(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
+	//if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+	//	if _, err := models.AddUsers(&v); err == nil {
+	//		c.Ctx.Output.SetStatus(201)
+	//		c.Data["json"] = v
+	//	} else {
+	//		c.Data["json"] = err.Error()
+	//	}
+	//} else {
+	//	c.Data["json"] = err.Error()
+	//}
+	//c.ServeJSON()
+	valid := validation.Validation{}
+	valid.Required(v.Name, "name")
+	valid.Required(v.Email, "Email")
+	valid.Required(v.Password, "Password")
+	if valid.HasErrors() {
+		// 如果有错误信息，证明验证没通过
+		// 打印错误信息
+		for _, err := range valid.Errors {
+			log.Println(err.Key, err.Message)
 		}
-	} else {
-		c.Data["json"] = err.Error()
 	}
-	c.ServeJSON()
 }
 
 // GetOne ...
@@ -58,12 +72,14 @@ func (c *UsersController) GetOne() {
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetUsersById(id)
 	if err != nil {
-		c.Data["json"] = err.Error()
+		c.Data["json"] = Error(10001,err.Error())
 	} else {
-		c.Data["json"] = v
+		c.Data["json"] = Success(v)
 	}
 	c.ServeJSON()
 }
+
+
 
 // GetAll ...
 // @Title Get All
@@ -152,6 +168,8 @@ func (c *UsersController) Put() {
 	c.ServeJSON()
 }
 
+
+
 // Delete ...
 // @Title Delete
 // @Description delete the Users
@@ -167,5 +185,41 @@ func (c *UsersController) Delete() {
 	} else {
 		c.Data["json"] = err.Error()
 	}
+	c.ServeJSON()
+}
+
+// @router /login [post]
+func (c *UsersController) Login() {
+	var L struct{
+		Username string
+		Password string
+	}
+
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &L); err == nil {
+		verify := validation.Validation{}
+		beego.Info(L)
+		beego.Info(L.Password)
+		verify.Required(L.Username,"username").Message("用户名必须填写")
+		verify.Required(L.Password,"password").Message("密码必须填写")
+		if verify.HasErrors() {
+			// 如果有错误信息，证明验证没通过
+			// 打印错误信息
+			for _, err := range verify.Errors {
+				c.Data["json"] = Error(utils.DataErr,err.Message)
+				break
+			}
+		}else{
+			c.Data["json"] = Success("登录成功")
+		}
+	} else {
+		c.Data["json"] = Error(10001,err.Error())
+	}
+
+	c.ServeJSON()
+}
+
+// @router /register [post]
+func (c *UsersController) Register() {
+	c.Data["json"] = Success("注册成功")
 	c.ServeJSON()
 }

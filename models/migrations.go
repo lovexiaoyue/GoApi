@@ -10,9 +10,9 @@ import (
 )
 
 type Migrations struct {
-	Id        int    `orm:"column(id);auto"`
-	Migration string `orm:"column(migration);size(191)"`
-	Batch     int    `orm:"column(batch)"`
+	Id        int    `json:"id"          orm:"column(id);auto"`
+	Migration string `json:"migration"   orm:"column(migration);size(191)"`
+	Batch     int    `json:"batch"       orm:"column(batch)"`
 }
 
 func (t *Migrations) TableName() string {

@@ -11,12 +11,12 @@ import (
 )
 
 type Ads struct {
-	Id        int       `orm:"column(id);auto"`
-	Title     string    `orm:"column(title);size(191)"`
-	Url       string    `orm:"column(url);size(191)"`
-	Type      string    `orm:"column(type);size(191);null"`
-	CreatedAt time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt time.Time `orm:"column(updated_at);type(timestamp);null"`
+	Id        int       `json:"id"              orm:"column(id);auto"`
+	Title     string    `json:"title"           orm:"column(title);size(191)"`
+	Url       string    `json:"url"             orm:"column(url);size(191)"`
+	Type      string    `json:"type"            orm:"column(type);size(191);null"`
+	CreatedAt time.Time `json:"created_at"      orm:"column(created_at);type(timestamp);null"`
+	UpdatedAt time.Time `json:"updated_at"      orm:"column(updated_at);type(timestamp);null"`
 }
 
 func (t *Ads) TableName() string {

@@ -11,14 +11,14 @@ import (
 )
 
 type Comments struct {
-	Id        int       `orm:"column(id);auto"`
-	Content   string    `orm:"column(content)"`
-	ArticleId *Articles `orm:"column(article_id);rel(fk)"`
-	UserId    *Users    `orm:"column(user_id);rel(fk)"`
-	ReplyId   int       `orm:"column(reply_id);null"`
-	Name      string    `orm:"column(name);size(191);null"`
-	CreatedAt time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt time.Time `orm:"column(updated_at);type(timestamp);null"`
+	Id        int       `json:"id"            orm:"column(id);auto"`
+	Content   string    `json:"content"       orm:"column(content)"`
+	ArticleId *Articles `json:"article_id"    orm:"column(article_id);rel(fk)"`
+	UserId    *Users    `json:"user_id"       orm:"column(user_id);rel(fk)"`
+	ReplyId   int       `json:"reply_id"      orm:"column(reply_id);null"`
+	Name      string    `json:"name"          orm:"column(name);size(191);null"`
+	CreatedAt time.Time `json:"created_at"    orm:"column(created_at);type(timestamp);null"`
+	UpdatedAt time.Time `json:"updated_at"    orm:"column(updated_at);type(timestamp);null"`
 }
 
 func (t *Comments) TableName() string {

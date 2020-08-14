@@ -11,13 +11,13 @@ import (
 )
 
 type Messages struct {
-	Id        int       `orm:"column(id);auto"`
-	Content   string    `orm:"column(content)"`
-	Name      string    `orm:"column(name);size(191);null"`
-	ReplyId   string    `orm:"column(reply_id);size(191);null"`
-	UserId    *Users    `orm:"column(user_id);rel(fk)"`
-	CreatedAt time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt time.Time `orm:"column(updated_at);type(timestamp);null"`
+	Id        int       `json:"id"            orm:"column(id);auto"`
+	Content   string    `json:"content"       orm:"column(content)"`
+	Name      string    `json:"name"          orm:"column(name);size(191);null"`
+	ReplyId   string    `json:"reply_id"      orm:"column(reply_id);size(191);null"`
+	UserId    *Users    `json:"user_id"       orm:"column(user_id);rel(fk)"`
+	CreatedAt time.Time `json:"created_at"    orm:"column(created_at);type(timestamp);null"`
+	UpdatedAt time.Time `json:"updated_at"    orm:"column(updated_at);type(timestamp);null"`
 }
 
 func (t *Messages) TableName() string {

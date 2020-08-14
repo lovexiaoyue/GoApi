@@ -11,21 +11,21 @@ import (
 )
 
 type Webinfos struct {
-	Id          int       `orm:"column(id);auto"`
-	Title       string    `orm:"column(title);size(191);null"`
-	Keyword     string    `orm:"column(keyword);size(191);null"`
-	Description string    `orm:"column(description);null"`
-	Personinfo  string    `orm:"column(personinfo);null"`
-	Github      string    `orm:"column(github);size(191);null"`
-	Icp         string    `orm:"column(icp);size(191);null"`
-	Weixin      string    `orm:"column(weixin);size(191);null"`
-	Zhifubao    string    `orm:"column(zhifubao);size(191);null"`
-	Qq          string    `orm:"column(qq);size(191);null"`
-	Phone       string    `orm:"column(phone);size(191);null"`
-	Email       string    `orm:"column(email);size(191);null"`
-	StartTime   time.Time `orm:"column(startTime);type(date);null"`
-	CreatedAt   time.Time `orm:"column(created_at);type(timestamp);null"`
-	UpdatedAt   time.Time `orm:"column(updated_at);type(timestamp);null"`
+	Id          int       `json:"id"               orm:"column(id);auto"`
+	Title       string    `json:"title"            orm:"column(title);size(191);null"`
+	Keyword     string    `json:"keyword"          orm:"column(keyword);size(191);null"`
+	Description string    `json:"description"      orm:"column(description);null"`
+	Personinfo  string    `json:"personinfo"       orm:"column(personinfo);null"`
+	Github      string    `json:"github"           orm:"column(github);size(191);null"`
+	Icp         string    `json:"icp"              orm:"column(icp);size(191);null"`
+	Weixin      string    `json:"weixin"           orm:"column(weixin);size(191);null"`
+	Zhifubao    string    `json:"zhifubao"         orm:"column(zhifubao);size(191);null"`
+	Qq          string    `json:"qq"               orm:"column(qq);size(191);null"`
+	Phone       string    `json:"phone"            orm:"column(phone);size(191);null"`
+	Email       string    `json:"email"            orm:"column(email);size(191);null"`
+	StartTime   time.Time `json:"start_time"       orm:"column(startTime);type(date);null"`
+	CreatedAt   time.Time `json:"created_at"       orm:"column(created_at);type(timestamp);null"`
+	UpdatedAt   time.Time `json:"updated_at"       orm:"column(updated_at);type(timestamp);null"`
 }
 
 func (t *Webinfos) TableName() string {
