@@ -8,14 +8,14 @@ type VerifyController struct {
 
 // 登录校验
 type LoginVerify struct {
-	name      string
+	Name      string
 	Password  string
 }
 
 
 // 注册校验
 type RegisterVerify struct {
-	name        string
+	Name        string
 	Email       string
 	Password    string
 	Repassword  string

@@ -191,12 +191,16 @@ func (c *UsersController) Delete() {
 // @router /login [post]
 func (c *UsersController) Login() {
 	var data LoginVerify
+	var user models.Users
+	user.Id = 1
+	user.Name = "socket"
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		beego.Info(data)
-		if err := utils.CheckLogin(data.name,data.Password); err != "ok"{
+		if err := utils.CheckLogin(data.Name,data.Password); err != "ok"{
 			c.Data["json"] = Error(10001,err)
 		}else{
-			c.Data["json"] = Success("登录成功")
+			token := utils.GenerateToken(10,user)
+			c.Data["json"] = Success(token)
 		}
 	} else {
 		c.Data["json"] = Error(10001,err.Error())
@@ -211,7 +215,7 @@ func (c *UsersController) Register() {
 	var data RegisterVerify
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		beego.Info(data)
-		if err := utils.CheckRegister(data.name,data.Email,data.Password,data.Repassword); err != "ok"{
+		if err := utils.CheckRegister(data.Name,data.Email,data.Password,data.Repassword); err != "ok"{
 			c.Data["json"] = Error(10001,err)
 		}else{
 			c.Data["json"] = Success("登录成功")
