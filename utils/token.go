@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/dgrijalva/jwt-go"
-
-
-	//"strings"
 	"time"
 	"github.com/astaxie/beego/context"
 )
@@ -82,7 +79,7 @@ func ValidateToken(tokenString string) error {
 }
 
 
-func GenerateToken(expiredSeconds int, user models.Users) (tokenString string) {
+func GenerateToken(expiredSeconds int, user *models.Users) (tokenString string) {
 	if expiredSeconds == 0 {
 		expiredSeconds = DEFAULT_EXPIRE_SECONDS
 	}
@@ -92,7 +89,7 @@ func GenerateToken(expiredSeconds int, user models.Users) (tokenString string) {
 	fmt.Println("token will be expired at ", time.Unix(expireAt, 0) )
 	// pass parameter to this func or not
 	claims := MyCustomClaims{
-		user,
+		*user,
 		jwt.StandardClaims{
 			ExpiresAt: expireAt,
 			Issuer:    user.Name,

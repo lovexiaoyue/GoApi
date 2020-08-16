@@ -190,14 +190,14 @@ func (c *UsersController) Delete() {
 // @router /login [post]
 func (c *UsersController) Login() {
 	var data LoginVerify
-	var user models.Users
+	user,_ := models.GetUsersById(1)
 	var token Token
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		beego.Info(data)
 		if err := utils.CheckLogin(data.Name,data.Password); err != "ok"{
 			c.Data["json"] = Error(err)
 		}else{
-			token.Token = utils.GenerateToken(20,user)
+			token.Token = utils.GenerateToken(0,user)
 			c.Data["json"] = Success(token)
 		}
 	} else {

@@ -43,5 +43,7 @@ func (c *BaseController) RefreshToken (){
 	}else{
 		c.Data["json"] = Success(retoken)
 	}
+	beego.Error(err)
+	c.ServeJSON()
 }
 
