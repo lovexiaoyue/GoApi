@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"MyGoApi/models"
+
 	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/dgrijalva/jwt-go"
@@ -15,14 +15,17 @@ const (
 
 )
 
-
+type User struct {
+	Id  int `json:"id"`
+	Name string `json:"name"`
+}
 
 
 // JWT -- json web token
 // HEADER PAYLOAD SIGNATURE
 // This struct is the PAYLOAD
 type MyCustomClaims struct {
-	models.Users
+	User
 	jwt.StandardClaims
 }
 
@@ -43,10 +46,10 @@ func RefreshToken(tokenString string)(string, error) {
 	mySigningKey := []byte(KEY)
 	expireAt  := time.Now().Add(time.Second * time.Duration(DEFAULT_EXPIRE_SECONDS)).Unix()
 	newClaims := MyCustomClaims{
-		claims.Users,
+		claims.User,
 		jwt.StandardClaims{
 			ExpiresAt: expireAt,
-			Issuer:    claims.Users.Name,
+			Issuer:    claims.User.Name,
 			IssuedAt:  time.Now().Unix(),
 		},
 	}
@@ -61,7 +64,7 @@ func RefreshToken(tokenString string)(string, error) {
 }
 
 
-func ValidateToken(tokenString string) error {
+func ValidateToken(tokenString string) (user *MyCustomClaims, err error) {
 	token, err := jwt.ParseWithClaims(
 		tokenString,
 		&MyCustomClaims{},
@@ -69,17 +72,18 @@ func ValidateToken(tokenString string) error {
 			return []byte(KEY), nil
 		})
 	if claims, ok := token.Claims.(*MyCustomClaims); ok && token.Valid {
-		fmt.Printf("%v %v", claims.Users, claims.StandardClaims.ExpiresAt)
+		fmt.Printf("%v %v", claims.User, claims.StandardClaims.ExpiresAt)
 		fmt.Println("token will be expired at ", time.Unix(claims.StandardClaims.ExpiresAt, 0))
+		return claims,nil
 	} else {
 		fmt.Println("validate tokenString failed !!!",err)
-		return err
+		return claims,err
 	}
-	return nil
+	//fmt.Printf("%v %v", claims.Users, claims.StandardClaims.ExpiresAt)
 }
 
 
-func GenerateToken(expiredSeconds int, user *models.Users) (tokenString string) {
+func GenerateToken(expiredSeconds int, user User) (tokenString string) {
 	if expiredSeconds == 0 {
 		expiredSeconds = DEFAULT_EXPIRE_SECONDS
 	}
@@ -89,7 +93,7 @@ func GenerateToken(expiredSeconds int, user *models.Users) (tokenString string) 
 	fmt.Println("token will be expired at ", time.Unix(expireAt, 0) )
 	// pass parameter to this func or not
 	claims := MyCustomClaims{
-		*user,
+		user,
 		jwt.StandardClaims{
 			ExpiresAt: expireAt,
 			Issuer:    user.Name,
@@ -121,13 +125,12 @@ var FilterToken = func(ctx *context.Context) {
 	if ctx.Request.RequestURI != "/v1/login" && ctx.Input.Header("Authorization") != "" && ctx.Request.RequestURI != "/v1/register"{
 		token := ctx.Input.Header("Authorization")
 
-		err := ValidateToken(token)
+		_,err := ValidateToken(token)
 		if err != nil {
 			ctx.ResponseWriter.WriteHeader(401)
 			ctx.ResponseWriter.Write([]byte("token invalid"))
 		}
 		// invoke ValidateToken in utils/token
-		RefreshToken(token)
 		// invalid or expired todo res 401
 	}
 }

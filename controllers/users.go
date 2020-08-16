@@ -5,11 +5,14 @@ import (
 	"MyGoApi/utils"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"github.com/astaxie/beego"
+	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/validation"
 	"log"
 	"strconv"
 	"strings"
-	"github.com/astaxie/beego"
+	"time"
 )
 
 // UsersController operations for Users
@@ -25,6 +28,8 @@ func (c *UsersController) URLMapping() {
 	c.Mapping("Put", c.Put)
 	c.Mapping("Delete", c.Delete)
 }
+
+
 
 // Post ...
 // @Title Post
@@ -191,13 +196,16 @@ func (c *UsersController) Delete() {
 func (c *UsersController) Login() {
 	var data LoginVerify
 	user,_ := models.GetUsersById(1)
+	var v utils.User
+	v.Id = user.Id
+	v.Name = user.Name
 	var token Token
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		beego.Info(data)
 		if err := utils.CheckLogin(data.Name,data.Password); err != "ok"{
 			c.Data["json"] = Error(err)
 		}else{
-			token.Token = utils.GenerateToken(0,user)
+			token.Token = utils.GenerateToken(0,v)
 			c.Data["json"] = Success(token)
 		}
 	} else {
@@ -222,5 +230,57 @@ func (c *UsersController) Register() {
 		c.Data["json"] = Error(err.Error())
 	}
 
+	c.ServeJSON()
+}
+
+// @router /info [get]
+func (c *UsersController) UserInfo() {
+	token := c.Ctx.Input.Header("Authorization")
+
+	v,_ := utils.ValidateToken(token)
+
+	var maps []orm.Params //[map, map, map]
+	type User struct {
+		Id        int64     `json:"id"`
+		Name      string    `json:"name"`
+		Email     string    `json:"email"`
+		Phone     string    `json:"phone"`
+		AvatarUrl string    `json:"avatar_url"`
+		Captcha   int       `json:"captcha" `
+		Intro     string    `json:"intro"`
+		Admin     bool      `json:"admin"`
+		CreatedAt time.Time `json:"created_at"`
+		UpdatedAt time.Time `json:"updated_at"`
+	}
+	orm := orm.NewOrm()
+	_, err := orm.QueryTable("users").Filter("id",v.User.Id).Values(&maps, )
+	if err != nil {
+		c.Data["json"] = Error("查询出错")
+		return
+	}
+
+	var user User
+	for _, m := range maps {
+		a,ok := m["Phone"].(string)
+		if ok {
+			user.Phone     = a
+
+		}else{
+			user.Phone = ""
+		}
+		user.Id        = m["Id"].(int64)
+		user.Name      = m["Name"].(string)
+		//user.Phone     = m["Phone"].(string)
+		user.Email     = m["Email"].(string)
+
+		//user.AvatarUrl = m["AvatarUrl"].(string)
+		//user.Captcha   = If(m["Captcha"] != nil,m["Captcha"].(int),nil).(int)
+		//user.Intro     = m["Intro"].(string)
+		//user.Admin     = m["Admin"].(bool)
+		//user.CreatedAt = m["CreatedAt"].(time.Time)
+		//user.UpdatedAt = m["UpdatedAt"].(time.Time)
+	}
+	fmt.Println(user)
+	c.Data["json"] = Success(user)
 	c.ServeJSON()
 }
