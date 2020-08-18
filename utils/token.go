@@ -3,6 +3,7 @@ package utils
 import (
 
 	"fmt"
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
 	"github.com/dgrijalva/jwt-go"
 	"time"
@@ -88,6 +89,7 @@ func GenerateToken(expiredSeconds int, user User) (tokenString string) {
 		expiredSeconds = DEFAULT_EXPIRE_SECONDS
 	}
 	// Create the Claims
+	beego.Info("===============")
 	mySigningKey := []byte(KEY)
 	expireAt  := time.Now().Add(time.Second * time.Duration(expiredSeconds)).Unix()
 	fmt.Println("token will be expired at ", time.Unix(expireAt, 0) )

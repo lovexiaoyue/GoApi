@@ -8,6 +8,8 @@ import (
 )
 
 func main() {
+	//password := "liufeng0916"
+
 	orm.RegisterDataBase("default", "mysql", beego.AppConfig.String("sqlconn"))
 	if beego.BConfig.RunMode == "dev" {
 		beego.BConfig.WebConfig.DirectoryIndex = true

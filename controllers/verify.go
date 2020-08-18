@@ -12,6 +12,11 @@ type LoginVerify struct {
 	Password  string
 }
 
+// 列表参数校验
+type ListVerify struct {
+	Page    int  `json:"page"`
+	Count   int  `json:"sumCount"`
+}
 
 // 注册校验
 type RegisterVerify struct {

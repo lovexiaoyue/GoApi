@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"fmt"
+	"github.com/astaxie/beego"
 	"reflect"
 	"strings"
 	"time"
@@ -152,4 +153,14 @@ func DeleteAds(id int) (err error) {
 		}
 	}
 	return
+}
+
+func ListAds(page,count int) (ads []Ads,err error) {
+	o := orm.NewOrm()
+	beego.Info(count)
+	var v []Ads
+	qs := o.QueryTable("ads")
+	qs.Limit(count).Offset((page-1)*count).All(&v)
+	beego.Info(ads)
+	return v,nil
 }

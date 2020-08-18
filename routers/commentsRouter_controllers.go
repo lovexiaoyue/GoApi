@@ -52,6 +52,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["MyGoApi/controllers:AdsController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:AdsController"],
+        beego.ControllerComments{
+            Method: "List",
+            Router: "/list",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["MyGoApi/controllers:ArticlesController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:ArticlesController"],
         beego.ControllerComments{
             Method: "Post",
@@ -434,6 +443,15 @@ func init() {
         beego.ControllerComments{
             Method: "Login",
             Router: "/login",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
+    beego.GlobalControllerRouter["MyGoApi/controllers:UsersController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:UsersController"],
+        beego.ControllerComments{
+            Method: "Logout",
+            Router: "/logout",
             AllowHTTPMethods: []string{"post"},
             MethodParams: param.Make(),
             Filters: nil,

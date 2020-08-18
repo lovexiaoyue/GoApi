@@ -51,6 +51,15 @@ func GetUsersById(id int) (v *Users, err error) {
 	return nil, err
 }
 
+func GetUsersByName(name string) (v *Users, err error) {
+	o := orm.NewOrm()
+	v = &Users{Name: name}
+	if err = o.Read(v,"Name"); err == nil {
+		return v, nil
+	}
+	return nil, err
+}
+
 // GetAllUsers retrieves all Users matches certain condition. Returns empty list if
 // no records exist
 func GetAllUsers(query map[string]string, fields []string, sortby []string, order []string,

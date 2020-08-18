@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"MyGoApi/utils"
+	"errors"
 	"github.com/astaxie/beego"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Token struct {
@@ -16,17 +18,18 @@ type BaseController struct {
 type Response struct {
 	Code int               `json:"code"`
 	Status string          `json:"status"`
+	Message string         `json:"message"`
 	Data interface{}       `json:"data"`
 }
 
 // 返回成功结果
 func Success(data interface{}) Response {
-	return Response{200,"success",data}
+	return Response{200,"success","",data}
 }
 
 // 返回失败结果
 func Error(message string) Response {
-	return Response{200,"fail",message}
+	return Response{200,"fail",message,""}
 }
 
 // @router / [post]
@@ -47,3 +50,15 @@ func (c *BaseController) RefreshToken (){
 	c.ServeJSON()
 }
 
+// 比对密码
+func ValidatePassWd(src string, passWd string) (bool, error) {
+	if err := bcrypt.CompareHashAndPassword([]byte(passWd), []byte(src)); err != nil {
+		return false, errors.New("密码错误")
+	}
+	return true, nil
+}
+
+//生成密码
+func GeneratePassWd(src string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(src), bcrypt.DefaultCost)
+}

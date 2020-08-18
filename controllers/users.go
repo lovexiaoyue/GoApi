@@ -5,14 +5,12 @@ import (
 	"MyGoApi/utils"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
 	"github.com/astaxie/beego/validation"
 	"log"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // UsersController operations for Users
@@ -195,18 +193,34 @@ func (c *UsersController) Delete() {
 // @router /login [post]
 func (c *UsersController) Login() {
 	var data LoginVerify
-	user,_ := models.GetUsersById(1)
 	var v utils.User
-	v.Id = user.Id
-	v.Name = user.Name
 	var token Token
+
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
-		beego.Info(data)
 		if err := utils.CheckLogin(data.Name,data.Password); err != "ok"{
 			c.Data["json"] = Error(err)
 		}else{
+			user,_ := models.GetUsersByName(data.Name)
+			if user == nil {
+				c.Data["json"] = Error("用户名或密码错误")
+				c.ServeJSON()
+			}
+			ok,_:=ValidatePassWd(data.Password,user.Password)
+			beego.Info(ok)
+			if !ok{
+				c.Data["json"] = Error("用户名或密码错误")
+				c.ServeJSON()
+			}
+
+			//v = new(utils.User)
+			v.Id = user.Id
+			v.Name = user.Name
 			token.Token = utils.GenerateToken(0,v)
+			c.SetSession("name",user.Name)
+			c.SetSession("admin",user.IsAdmin)
+			beego.Info(token)
 			c.Data["json"] = Success(token)
+
 		}
 	} else {
 		c.Data["json"] = Error(err.Error())
@@ -220,11 +234,23 @@ func (c *UsersController) Register() {
 
 	var data RegisterVerify
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
-		beego.Info(data)
 		if err := utils.CheckRegister(data.Name,data.Email,data.Password,data.Repassword); err != "ok"{
 			c.Data["json"] = Error(err)
 		}else{
-			c.Data["json"] = Success("登录成功")
+			user := new(models.Users)
+			user.Name = data.Name
+			user.Email = data.Email
+			user.Phone = ""
+			secret,_ := GeneratePassWd(data.Password)
+			user.Password = string(secret)
+			o := orm.NewOrm()
+			_,err := o.Insert(user)
+			if err != nil {
+				beego.Info(err)
+				c.Data["json"] = Error("用户名已存在")
+			}else{
+				c.Data["json"] = Success("注册成功")
+			}
 		}
 	} else {
 		c.Data["json"] = Error(err.Error())
@@ -235,52 +261,61 @@ func (c *UsersController) Register() {
 
 // @router /info [get]
 func (c *UsersController) UserInfo() {
-	token := c.Ctx.Input.Header("Authorization")
 
-	v,_ := utils.ValidateToken(token)
-
-	var maps []orm.Params //[map, map, map]
-	type User struct {
-		Id        int64     `json:"id"`
-		Name      string    `json:"name"`
-		Email     string    `json:"email"`
-		Phone     string    `json:"phone"`
-		AvatarUrl string    `json:"avatar_url"`
-		Captcha   int       `json:"captcha" `
-		Intro     string    `json:"intro"`
-		Admin     bool      `json:"admin"`
-		CreatedAt time.Time `json:"created_at"`
-		UpdatedAt time.Time `json:"updated_at"`
+	//用户校验 获取用户信息
+	//token := c.Ctx.Input.Header("Authorization")
+	//v,err := utils.ValidateToken(token)
+	name := c.GetSession("name")
+	if name == nil {
+		c.Data["json"] = Error("请重新登录")
+		c.ServeJSON()
 	}
+	beego.Info("sessionName:",name)
+	//if err != nil {
+	//	c.Data["json"] = Error("token err")
+	//	c.ServeJSON()
+	//}
+
+	// 查询用户信息
+	//u,_ := models.GetUsersByName(name.(string))
+	var u models.Users
 	orm := orm.NewOrm()
-	_, err := orm.QueryTable("users").Filter("id",v.User.Id).Values(&maps, )
+	err := orm.QueryTable("users").Filter("name",name).One(&u,"id","name","email","phone","avatar_url","intro","is_admin","created_at","updated_at")
 	if err != nil {
 		c.Data["json"] = Error("查询出错")
-		return
+		c.ServeJSON()
 	}
 
-	var user User
-	for _, m := range maps {
-		a,ok := m["Phone"].(string)
-		if ok {
-			user.Phone     = a
-
-		}else{
-			user.Phone = ""
-		}
-		user.Id        = m["Id"].(int64)
-		user.Name      = m["Name"].(string)
-		//user.Phone     = m["Phone"].(string)
-		user.Email     = m["Email"].(string)
-
-		//user.AvatarUrl = m["AvatarUrl"].(string)
-		//user.Captcha   = If(m["Captcha"] != nil,m["Captcha"].(int),nil).(int)
-		//user.Intro     = m["Intro"].(string)
-		//user.Admin     = m["Admin"].(bool)
-		//user.CreatedAt = m["CreatedAt"].(time.Time)
-		//user.UpdatedAt = m["UpdatedAt"].(time.Time)
+	// 判断是否是admin
+	var admin bool
+	if u.IsAdmin == "1" {
+		admin = true
+	}else{
+		admin = false
 	}
-	fmt.Println(user)
+
+	// 定义返回字段
+	user := make(map[string]interface{})
+	user["id"]          = u.Id
+	user["name"]        = u.Name
+	user["phone"]       = u.Phone
+	user["email"]       = u.Email
+	user["avatar_url"]  = u.AvatarUrl
+	user["captcha"]     = u.Captcha
+	user["intro"]       = u.Intro
+	user["admin"]       = admin
+	user["created_at"]  = u.CreatedAt
+	user["updated_at"]  = u.UpdatedAt
+
 	c.Data["json"] = Success(user)
+	c.ServeJSON()
+}
+
+// 用户退出接口
+// @router /logout [post]
+func (c *UsersController) Logout() {
+	c.DelSession("name")
+	c.DelSession("admin")
+	c.Data["json"] = Success("退出成功")
 	c.ServeJSON()
 }

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"MyGoApi/models"
+	"MyGoApi/utils"
 	"encoding/json"
 	"errors"
 	"strconv"
@@ -166,6 +167,23 @@ func (c *AdsController) Delete() {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
+	}
+	c.ServeJSON()
+}
+
+// @router /list [post]
+func (c *AdsController) List() {
+	var data ListVerify
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
+		if err := utils.CheckList(data.Page,data.Count); err != "ok"{
+			c.Data["json"] = Error(err)
+		}else{
+			ads , _ := models.ListAds(data.Page,data.Count)
+			beego.Info(ads)
+			c.Data["json"] = Success(ads)
+		}
+	}else {
+		c.Data["json"] = Error(err.Error())
 	}
 	c.ServeJSON()
 }
