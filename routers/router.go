@@ -89,5 +89,6 @@ func init() {
 	beego.Router("/v1/register",&controllers.UsersController{},"post:Register")
 	beego.Router("/v1/refresh",&controllers.BaseController{},"post:RefreshToken")
 	beego.Router("/v1/list",&controllers.AdsController{},"post:List")
+	beego.Router("/v1/list",&controllers.ArticlesController{},"post:List")
 	beego.AddNamespace(ns)
 }

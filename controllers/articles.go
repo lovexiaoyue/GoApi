@@ -4,6 +4,8 @@ import (
 	"MyGoApi/models"
 	"encoding/json"
 	"errors"
+	"github.com/astaxie/beego/orm"
+	"math"
 	"strconv"
 	"strings"
 
@@ -15,6 +17,9 @@ type ArticlesController struct {
 	beego.Controller
 }
 
+var PageSize int = 10
+
+var BasePath string = "http://127.0.0.1:8080/v1/article/list"
 // URLMapping ...
 func (c *ArticlesController) URLMapping() {
 	c.Mapping("Post", c.Post)
@@ -166,6 +171,54 @@ func (c *ArticlesController) Delete() {
 		c.Data["json"] = "OK"
 	} else {
 		c.Data["json"] = err.Error()
+	}
+	c.ServeJSON()
+}
+
+
+// @router /list [post]
+func (c *ArticlesController) List() {
+	var v map[string]interface{}
+	var page Paginator
+	var articles []models.Articles
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		//page := v["page"].(float64)
+		o := orm.NewOrm()
+		num,err := o.QueryTable("articles").Count()
+		if err != nil {
+			c.Data["json"] = Error(err.Error())
+		}else{
+			CurrentPage := int(v["page"].(float64))
+			From := (CurrentPage-1)*PageSize + 1
+			To := 10
+			if (CurrentPage-1)*PageSize <= int(num){
+				To   = (CurrentPage-1)*PageSize
+			}else{
+				To   = int(num)
+			}
+			LastPage:= int(math.Ceil((float64(num)/float64(PageSize))))
+			o.QueryTable("articles").OrderBy("-created_at").Limit(PageSize,From).All(&articles)
+
+			page.CurrentPage = CurrentPage
+			page.Data = articles
+			page.FirstPageUrl = BasePath+"?page=1"
+			page.LastPage = LastPage
+			page.LastPageUrl = BasePath+"?page="+string(LastPage)
+			page.NextPageUrl = BasePath+"?page="+string(CurrentPage+1)
+			page.Path = BasePath
+			page.PerPage = 10
+			if CurrentPage-1 <= 0{
+				page.PrevPageUrl = ""
+			}else{
+				page.PrevPageUrl = BasePath+"?page="+string(CurrentPage+1)
+			}
+			page.Total = int(num)
+			page.From = From
+			page.To = To
+			c.Data["json"] = Success(page)
+		}
+	}else{
+		c.Data["json"] = Error(err.Error())
 	}
 	c.ServeJSON()
 }

@@ -1,11 +1,14 @@
 package controllers
 
 import (
+	"MyGoApi/models"
 	"MyGoApi/utils"
 	"errors"
 	"github.com/astaxie/beego"
 	"golang.org/x/crypto/bcrypt"
 )
+
+
 
 type Token struct {
 	Token string   `json:"token"`
@@ -22,6 +25,23 @@ type Response struct {
 	Data interface{}       `json:"data"`
 }
 
+// 分页数据
+
+
+type Paginator struct {
+	CurrentPage int          `json:"current_page"`
+	Data []models.Articles   `json:"data"`
+	FirstPageUrl string      `json:"first_page_url"`
+	LastPage int             `json:"last_page"`
+	LastPageUrl  string      `json:"last_page_url"`
+	NextPageUrl  string      `json:"next_page_url"`
+	Path         string      `json:"path"`
+	PerPage int              `json:"per_page"`
+	PrevPageUrl string       `json:"prev_page_url"`
+	Total  int               `json:"total"`
+	From   int               `json:"from"`
+	To     int               `json:"to"`
+}
 // 返回成功结果
 func Success(data interface{}) Response {
 	return Response{200,"success","",data}
