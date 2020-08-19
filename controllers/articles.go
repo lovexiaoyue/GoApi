@@ -182,32 +182,44 @@ func (c *ArticlesController) List() {
 	var page Paginator
 	var articles []models.Articles
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		//page := v["page"].(float64)
+		//计算总量
 		o := orm.NewOrm()
 		num,err := o.QueryTable("articles").Count()
 		if err != nil {
 			c.Data["json"] = Error(err.Error())
 		}else{
+			// 当前页码和其实查询偏移量
 			CurrentPage := int(v["page"].(float64))
 			From := (CurrentPage-1)*PageSize + 1
+			// 计算下一次个数，超过最大后默认最大数量
 			To := 10
 			if (CurrentPage-1)*PageSize <= int(num){
 				To   = (CurrentPage-1)*PageSize
 			}else{
 				To   = int(num)
 			}
+			// 计算总页数
 			LastPage:= int(math.Ceil((float64(num)/float64(PageSize))))
+
+			//数据查询
 			o.QueryTable("articles").OrderBy("-created_at").Limit(PageSize,From).All(&articles)
 
+			// 数据返回
 			page.CurrentPage = CurrentPage
 			page.Data = articles
 			page.FirstPageUrl = BasePath+"?page=1"
 			page.LastPage = LastPage
 			page.LastPageUrl = BasePath+"?page="+string(LastPage)
-			page.NextPageUrl = BasePath+"?page="+string(CurrentPage+1)
+			// 已经是最后一页没有下一页
+			if CurrentPage+1 >= LastPage {
+				page.NextPageUrl = ""
+			}else{
+				page.NextPageUrl = BasePath+"?page="+string(CurrentPage+1)
+			}
 			page.Path = BasePath
 			page.PerPage = 10
-			if CurrentPage-1 <= 0{
+			// 当是第一页时没有前一页
+			if CurrentPage==1{
 				page.PrevPageUrl = ""
 			}else{
 				page.PrevPageUrl = BasePath+"?page="+string(CurrentPage+1)
