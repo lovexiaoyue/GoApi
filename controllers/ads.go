@@ -5,6 +5,7 @@ import (
 	"MyGoApi/utils"
 	"encoding/json"
 	"errors"
+	"github.com/astaxie/beego/orm"
 	"strconv"
 	"strings"
 
@@ -33,16 +34,20 @@ func (c *AdsController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *AdsController) Post() {
-	var v models.Ads
+	var v map[string]interface{}
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-		if _, err := models.AddAds(&v); err == nil {
-			c.Ctx.Output.SetStatus(201)
-			c.Data["json"] = v
-		} else {
-			c.Data["json"] = err.Error()
+		keyword := v["type"].(string)
+		beego.Info(keyword)
+		o := orm.NewOrm()
+		var ad []*models.Ads
+		_, err := o.QueryTable("ads").Filter("type",keyword).All(&ad)
+		if err != nil {
+			c.Data["json"] = Error(err.Error())
+		}else{
+			c.Data["json"] = Success(ad)
 		}
-	} else {
-		c.Data["json"] = err.Error()
+	}else{
+		c.Data["json"] = Error(err.Error())
 	}
 	c.ServeJSON()
 }

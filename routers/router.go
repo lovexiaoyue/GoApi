@@ -19,61 +19,61 @@ func init() {
 
 	ns := beego.NewNamespace("/v1",
 
-		beego.NSNamespace("/ads",
+		beego.NSNamespace("/ad",
 			beego.NSInclude(
 				&controllers.AdsController{},
 			),
 		),
 
-		beego.NSNamespace("/articles",
+		beego.NSNamespace("/article",
 			beego.NSInclude(
 				&controllers.ArticlesController{},
 			),
 		),
 
-		beego.NSNamespace("/comments",
+		beego.NSNamespace("/comment",
 			beego.NSInclude(
 				&controllers.CommentsController{},
 			),
 		),
 
-		beego.NSNamespace("/links",
+		beego.NSNamespace("/link",
 			beego.NSInclude(
 				&controllers.LinksController{},
 			),
 		),
 
-		beego.NSNamespace("/messages",
+		beego.NSNamespace("/message",
 			beego.NSInclude(
 				&controllers.MessagesController{},
 			),
 		),
 
-		beego.NSNamespace("/migrations",
+		beego.NSNamespace("/migration",
 			beego.NSInclude(
 				&controllers.MigrationsController{},
 			),
 		),
 
-		beego.NSNamespace("/telescope_entries",
+		beego.NSNamespace("/telescope_entrie",
 			beego.NSInclude(
 				&controllers.TelescopeEntriesController{},
 			),
 		),
 
-		beego.NSNamespace("/user_auths",
+		beego.NSNamespace("/user_auth",
 			beego.NSInclude(
 				&controllers.UserAuthsController{},
 			),
 		),
 
-		beego.NSNamespace("/users",
+		beego.NSNamespace("/user",
 			beego.NSInclude(
 				&controllers.UsersController{},
 			),
 		),
 
-		beego.NSNamespace("/webinfos",
+		beego.NSNamespace("/webinfo",
 			beego.NSInclude(
 				&controllers.WebinfosController{},
 			),

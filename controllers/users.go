@@ -7,8 +7,6 @@ import (
 	"errors"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
-	"github.com/astaxie/beego/validation"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -37,29 +35,20 @@ func (c *UsersController) URLMapping() {
 // @Failure 403 body is empty
 // @router / [post]
 func (c *UsersController) Post() {
+
 	var v models.Users
-	//if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
-	//	if _, err := models.AddUsers(&v); err == nil {
-	//		c.Ctx.Output.SetStatus(201)
-	//		c.Data["json"] = v
-	//	} else {
-	//		c.Data["json"] = err.Error()
-	//	}
-	//} else {
-	//	c.Data["json"] = err.Error()
-	//}
-	//c.ServeJSON()
-	valid := validation.Validation{}
-	valid.Required(v.Name, "name")
-	valid.Required(v.Email, "Email")
-	valid.Required(v.Password, "Password")
-	if valid.HasErrors() {
-		// 如果有错误信息，证明验证没通过
-		// 打印错误信息
-		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
+	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
+		if _, err := models.AddUsers(&v); err == nil {
+			c.Ctx.Output.SetStatus(201)
+			c.Data["json"] = v
+		} else {
+			c.Data["json"] = err.Error()
 		}
+	} else {
+		c.Data["json"] = err.Error()
 	}
+	c.ServeJSON()
+
 }
 
 // GetOne ...
@@ -70,6 +59,7 @@ func (c *UsersController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *UsersController) GetOne() {
+
 	idStr := c.Ctx.Input.Param(":id")
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetUsersById(id)
@@ -96,6 +86,7 @@ func (c *UsersController) GetOne() {
 // @Failure 403
 // @router / [get]
 func (c *UsersController) GetAll() {
+
 	var fields []string
 	var sortby []string
 	var order []string
@@ -205,6 +196,10 @@ func (c *UsersController) Login() {
 				c.Data["json"] = Error("用户名或密码错误")
 				c.ServeJSON()
 			}
+			secret,_ := GeneratePassWd(data.Password)
+			beego.Info(string(secret))
+			beego.Info("===============")
+			beego.Info(user.Password)
 			ok,_:=ValidatePassWd(data.Password,user.Password)
 			beego.Info(ok)
 			if !ok{
@@ -255,7 +250,6 @@ func (c *UsersController) Register() {
 	} else {
 		c.Data["json"] = Error(err.Error())
 	}
-
 	c.ServeJSON()
 }
 
@@ -314,8 +308,10 @@ func (c *UsersController) UserInfo() {
 // 用户退出接口
 // @router /logout [post]
 func (c *UsersController) Logout() {
+
 	c.DelSession("name")
 	c.DelSession("admin")
 	c.Data["json"] = Success("退出成功")
 	c.ServeJSON()
+
 }
