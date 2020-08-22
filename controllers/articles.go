@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/astaxie/beego/orm"
-	"math"
 	"strconv"
 	"strings"
 
@@ -59,14 +58,16 @@ func (c *ArticlesController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *ArticlesController) GetOne() {
-	idStr := c.Ctx.Input.Param(":id")
-	id, _ := strconv.Atoi(idStr)
-	v, err := models.GetArticlesById(id)
-	if err != nil {
-		c.Data["json"] = err.Error()
-	} else {
-		c.Data["json"] = v
-	}
+	//idStr := c.Ctx.Input.Param(":id")
+	//id, _ := strconv.Atoi(idStr)
+	//v, err := models.GetArticlesById(id)
+	//if err != nil {
+	//	c.Data["json"] = err.Error()
+	//} else {
+	//	c.Data["json"] = v
+	//}
+	o := orm.NewOrm()
+	o.QueryTable("tags").Filter("classify")
 	c.ServeJSON()
 }
 
@@ -191,45 +192,48 @@ func (c *ArticlesController) List() {
 			// 当前页码和其实查询偏移量
 			CurrentPage := int(v["page"].(float64))
 			From := (CurrentPage-1)*PageSize + 1
-			// 计算下一次个数，超过最大后默认最大数量
-			To := 10
-			if (CurrentPage-1)*PageSize <= int(num){
-				To   = (CurrentPage-1)*PageSize
-			}else{
-				To   = int(num)
-			}
-			// 计算总页数
-			LastPage:= int(math.Ceil((float64(num)/float64(PageSize))))
-
 			//数据查询
 			o.QueryTable("articles").OrderBy("-created_at").Limit(PageSize,From).All(&articles)
 
 			// 数据返回
-			page.CurrentPage = CurrentPage
 			page.Data = articles
-			page.FirstPageUrl = BasePath+"?page=1"
-			page.LastPage = LastPage
-			page.LastPageUrl = BasePath+"?page="+string(LastPage)
-			// 已经是最后一页没有下一页
-			if CurrentPage+1 >= LastPage {
-				page.NextPageUrl = ""
-			}else{
-				page.NextPageUrl = BasePath+"?page="+string(CurrentPage+1)
-			}
-			page.Path = BasePath
-			page.PerPage = 10
-			// 当是第一页时没有前一页
-			if CurrentPage==1{
-				page.PrevPageUrl = ""
-			}else{
-				page.PrevPageUrl = BasePath+"?page="+string(CurrentPage+1)
-			}
 			page.Total = int(num)
-			page.From = From
-			page.To = To
 			c.Data["json"] = Success(page)
 		}
 	}else{
+		c.Data["json"] = Error(err.Error())
+	}
+	c.ServeJSON()
+}
+
+
+// @router /classify [get]
+func (c *ArticlesController) Classify() {
+	//var data interface{}
+	o:=orm.NewOrm()
+	var ats []*models.Articles
+	var tags []*models.Tags
+	qs := o.QueryTable("articles")
+	n, err := qs.GroupBy("classify").All(&ats)
+
+	if err == nil && n > 0 {
+		var res []interface{}
+		for i := 0; i < len(ats); i++ {
+			// 每次都申请新地址 防止数据覆盖
+			classify := make(map[string]interface{})
+			o.QueryTable("tags").Filter("classify",ats[i].Classify).GroupBy("tag").All(&tags);
+			classify["name"] = ats[i].Classify
+			var tag []interface{}
+			for i := 0; i < len(tags); i++ {
+				tag = append(tag, tags[i].Tag)
+				beego.Info(tags[i].Tag)
+			}
+			classify["tags"] = tag
+			res = append(res, classify)
+		}
+		c.Data["json"] = Success(res)
+	} else {
+		beego.Info(err.Error())
 		c.Data["json"] = Error(err.Error())
 	}
 	c.ServeJSON()

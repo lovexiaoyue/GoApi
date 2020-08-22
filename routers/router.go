@@ -16,7 +16,12 @@ import (
 
 
 func init() {
-
+	beego.Router("/v1/login",&controllers.UsersController{},"post:Login")
+	beego.Router("/v1/register",&controllers.UsersController{},"post:Register")
+	beego.Router("/v1/refresh",&controllers.BaseController{},"post:RefreshToken")
+	beego.Router("/v1/list",&controllers.AdsController{},"post:List")
+	beego.Router("/v1/list",&controllers.ArticlesController{},"post:List")
+	beego.Router("/v1/classify",&controllers.ArticlesController{},"get:Classify")
 	ns := beego.NewNamespace("/v1",
 
 		beego.NSNamespace("/ad",
@@ -85,10 +90,6 @@ func init() {
 		),
 	)
 	//beego.InsertFilter("/*",beego.BeforeExec,utils.FilterToken)
-	beego.Router("/v1/login",&controllers.UsersController{},"post:Login")
-	beego.Router("/v1/register",&controllers.UsersController{},"post:Register")
-	beego.Router("/v1/refresh",&controllers.BaseController{},"post:RefreshToken")
-	beego.Router("/v1/list",&controllers.AdsController{},"post:List")
-	beego.Router("/v1/list",&controllers.ArticlesController{},"post:List")
+
 	beego.AddNamespace(ns)
 }

@@ -22,6 +22,7 @@ type Articles struct {
 	DeletedAt time.Time `json:"deleted_at"   orm:"column(deleted_at);type(timestamp);null"`
 	CreatedAt time.Time `json:"created_at"   orm:"column(created_at);type(timestamp);null"`
 	UpdatedAt time.Time `json:"updated_at"   orm:"column(updated_at);type(timestamp);null"`
+	//Tags *[]Tags        `orm:"rel(m2m)"` // ManyToMany relation
 }
 
 func (t *Articles) TableName() string {
