@@ -47,6 +47,10 @@ func (c *TagsController) List() {
 		CurrentPage := int(v["page"].(float64))
 		From := (CurrentPage-1)*PageSize
 		num, _ := o.QueryTable("articles").Filter("Tags__Tag", v["tag"]).Filter("deleted_at__isnull", true).Count()
+		if num == 0 {
+			c.Data["json"] = Error("该标签下的文章暂时下架")
+			c.ServeJSON()
+		}
 		_, err := o.QueryTable("articles").Filter("Tags__Tag", v["tag"]).Filter("deleted_at__isnull", true).OrderBy("-created_at").Limit(PageSize,From).All(&posts)
 		var res []interface{}
 		if err == nil {
