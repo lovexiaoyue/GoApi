@@ -313,6 +313,15 @@ func init() {
             Filters: nil,
             Params: nil})
 
+    beego.GlobalControllerRouter["MyGoApi/controllers:TagsController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:TagsController"],
+        beego.ControllerComments{
+            Method: "List",
+            Router: "/list",
+            AllowHTTPMethods: []string{"post"},
+            MethodParams: param.Make(),
+            Filters: nil,
+            Params: nil})
+
     beego.GlobalControllerRouter["MyGoApi/controllers:TelescopeEntriesController"] = append(beego.GlobalControllerRouter["MyGoApi/controllers:TelescopeEntriesController"],
         beego.ControllerComments{
             Method: "Post",

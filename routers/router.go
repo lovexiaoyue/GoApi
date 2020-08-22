@@ -21,12 +21,19 @@ func init() {
 	beego.Router("/v1/refresh",&controllers.BaseController{},"post:RefreshToken")
 	beego.Router("/v1/list",&controllers.AdsController{},"post:List")
 	beego.Router("/v1/list",&controllers.ArticlesController{},"post:List")
+	beego.Router("/v1/list",&controllers.TagsController{},"post:List")
 	beego.Router("/v1/classify",&controllers.ArticlesController{},"get:Classify")
 	ns := beego.NewNamespace("/v1",
 
 		beego.NSNamespace("/ad",
 			beego.NSInclude(
 				&controllers.AdsController{},
+			),
+		),
+
+		beego.NSNamespace("/tag",
+			beego.NSInclude(
+				&controllers.TagsController{},
 			),
 		),
 

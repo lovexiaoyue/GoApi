@@ -185,15 +185,15 @@ func (c *ArticlesController) List() {
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &v); err == nil {
 		//计算总量
 		o := orm.NewOrm()
-		num,err := o.QueryTable("articles").Count()
+		num,err := o.QueryTable("articles").Filter("deleted_at__isnull", true).Count()
 		if err != nil {
 			c.Data["json"] = Error(err.Error())
 		}else{
 			// 当前页码和其实查询偏移量
 			CurrentPage := int(v["page"].(float64))
-			From := (CurrentPage-1)*PageSize + 1
+			From := (CurrentPage-1)*PageSize
 			//数据查询
-			o.QueryTable("articles").OrderBy("-created_at").Limit(PageSize,From).All(&articles)
+			o.QueryTable("articles").Filter("deleted_at__isnull", true).OrderBy("-created_at").Limit(PageSize,From).All(&articles)
 
 			// 数据返回
 			page.Data = articles

@@ -30,7 +30,7 @@ type Response struct {
 
 type Paginator struct {
 	//CurrentPage int          `json:"current_page"`
-	Data []models.Articles   `json:"data"`
+	Data []models.Articles     `json:"data"`
 	//FirstPageUrl string      `json:"first_page_url"`
 	//LastPage int             `json:"last_page"`
 	//LastPageUrl  string      `json:"last_page_url"`
@@ -38,7 +38,7 @@ type Paginator struct {
 	//Path         string      `json:"path"`
 	//PerPage int              `json:"per_page"`
 	//PrevPageUrl string       `json:"prev_page_url"`
-	Total  int               `json:"total"`
+	Total  int                 `json:"total"`
 	//From   int               `json:"from"`
 	//To     int               `json:"to"`
 }
