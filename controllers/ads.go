@@ -42,12 +42,12 @@ func (c *AdsController) Post() {
 		var ad []*models.Ads
 		_, err := o.QueryTable("ads").Filter("type",keyword).All(&ad)
 		if err != nil {
-			c.Data["json"] = Error(err.Error())
+			c.Data["json"] = Error(400,err.Error())
 		}else{
 			c.Data["json"] = Success(ad)
 		}
 	}else{
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	}
 	c.ServeJSON()
 }
@@ -181,14 +181,14 @@ func (c *AdsController) List() {
 	var data ListVerify
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		if err := utils.CheckList(data.Page,data.Count); err != "ok"{
-			c.Data["json"] = Error(err)
+			c.Data["json"] = Error(400,err)
 		}else{
 			ads , _ := models.ListAds(data.Page,data.Count)
 			beego.Info(ads)
 			c.Data["json"] = Success(ads)
 		}
 	}else {
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	}
 	c.ServeJSON()
 }

@@ -64,7 +64,7 @@ func (c *UsersController) GetOne() {
 	id, _ := strconv.Atoi(idStr)
 	v, err := models.GetUsersById(id)
 	if err != nil {
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	} else {
 		c.Data["json"] = Success(v)
 	}
@@ -189,11 +189,11 @@ func (c *UsersController) Login() {
 
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		if err := utils.CheckLogin(data.Name,data.Password); err != "ok"{
-			c.Data["json"] = Error(err)
+			c.Data["json"] = Error(400,err)
 		}else{
 			user,_ := models.GetUsersByName(data.Name)
 			if user == nil {
-				c.Data["json"] = Error("用户名或密码错误")
+				c.Data["json"] = Error(400,"用户名或密码错误")
 				c.ServeJSON()
 			}
 			secret,_ := GeneratePassWd(data.Password)
@@ -203,7 +203,7 @@ func (c *UsersController) Login() {
 			ok,_:=ValidatePassWd(data.Password,user.Password)
 			beego.Info(ok)
 			if !ok{
-				c.Data["json"] = Error("用户名或密码错误")
+				c.Data["json"] = Error(400,"用户名或密码错误")
 				c.ServeJSON()
 			}
 
@@ -218,7 +218,7 @@ func (c *UsersController) Login() {
 
 		}
 	} else {
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	}
 
 	c.ServeJSON()
@@ -230,7 +230,7 @@ func (c *UsersController) Register() {
 	var data RegisterVerify
 	if err := json.Unmarshal(c.Ctx.Input.RequestBody, &data); err == nil {
 		if err := utils.CheckRegister(data.Name,data.Email,data.Password,data.Repassword); err != "ok"{
-			c.Data["json"] = Error(err)
+			c.Data["json"] = Error(400,err)
 		}else{
 			user := new(models.Users)
 			user.Name = data.Name
@@ -242,13 +242,13 @@ func (c *UsersController) Register() {
 			_,err := o.Insert(user)
 			if err != nil {
 				beego.Info(err)
-				c.Data["json"] = Error("用户名已存在")
+				c.Data["json"] = Error(400,"用户名已存在")
 			}else{
 				c.Data["json"] = Success("注册成功")
 			}
 		}
 	} else {
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	}
 	c.ServeJSON()
 }
@@ -261,7 +261,7 @@ func (c *UsersController) UserInfo() {
 	//v,err := utils.ValidateToken(token)
 	name := c.GetSession("name")
 	if name == nil {
-		c.Data["json"] = Error("请重新登录")
+		c.Data["json"] = Error(422,"未登录或登录状态失效")
 		c.ServeJSON()
 	}
 	beego.Info("sessionName:",name)
@@ -276,7 +276,7 @@ func (c *UsersController) UserInfo() {
 	orm := orm.NewOrm()
 	err := orm.QueryTable("users").Filter("name",name).One(&u,"id","name","email","phone","avatar_url","intro","is_admin","created_at","updated_at")
 	if err != nil {
-		c.Data["json"] = Error("查询出错")
+		c.Data["json"] = Error(400,"查询出错")
 		c.ServeJSON()
 	}
 

@@ -23,7 +23,7 @@ type Articles struct {
 	CreatedAt time.Time `json:"created_at"   orm:"column(created_at);type(timestamp);null"`
 	UpdatedAt time.Time `json:"updated_at"   orm:"column(updated_at);type(timestamp);null"`
 	//Tags []*Tags `orm:"reverse(many)"` // fk 的反向关系
-	Tags []*Tags        `json:"tags"         orm:"reverse(many)"` // fk 的反向关系
+	//Tags []*Tags        `json:"tags"         orm:"reverse(many)"` // fk 的反向关系
 }
 
 func (t *Articles) TableName() string {
@@ -51,6 +51,34 @@ func GetArticlesById(id int) (v *Articles, err error) {
 		return v, nil
 	}
 	return nil, err
+}
+
+func GetNextArticlesById(id int)(v *Articles, err error) {
+	//qb, _:=orm.NewQueryBuilder("mysql")
+	//qb.Select("id","title").From("articles").Where("")
+	var ats *Articles
+	o := orm.NewOrm()
+	//var r orm.RawSeter
+	err = o.Raw("select id,title from articles where id = (select min(id) from articles where id > ?) ",id).QueryRow(&ats)
+	if err != nil {
+		return nil , err
+	}
+	//beego.Info(ats)
+	return ats,nil
+}
+
+func GetPreArticlesById(id int)(v *Articles, err error) {
+	//qb, _:=orm.NewQueryBuilder("mysql")
+	//qb.Select("id","title").From("articles").Where("")
+	var ats *Articles
+	o := orm.NewOrm()
+	//var r orm.RawSeter
+	err = o.Raw("select * from articles where id = (select max(id) from articles where id < ?) ",id).QueryRow(&ats)
+	if err != nil {
+		return nil , err
+	}
+	//beego.Info(ats)
+	return ats,nil
 }
 
 // GetAllArticles retrieves all Articles matches certain condition. Returns empty list if

@@ -58,16 +58,48 @@ func (c *ArticlesController) Post() {
 // @Failure 403 :id is empty
 // @router /:id [get]
 func (c *ArticlesController) GetOne() {
-	//idStr := c.Ctx.Input.Param(":id")
-	//id, _ := strconv.Atoi(idStr)
-	//v, err := models.GetArticlesById(id)
-	//if err != nil {
-	//	c.Data["json"] = err.Error()
-	//} else {
-	//	c.Data["json"] = v
-	//}
+	info := make(map[string]interface{})
 	o := orm.NewOrm()
-	o.QueryTable("tags").Filter("classify")
+	idStr := c.Ctx.Input.Param(":id")
+	num,err := o.QueryTable("comments").Filter("article_id",idStr).Count()
+	id, _ := strconv.Atoi(idStr)
+	v, err := models.GetArticlesById(id)
+	if err == nil {
+		info["classify"] = v.Classify
+		info["clicks"]   = v.Clicks
+		info["comment"]  = num
+		info["content"]  = v.Content
+		info["created_at"] = v.CreatedAt
+		info["deleted_at"] = v.DeletedAt
+		info["desc"] = v.Desc
+		info["id"] = v.Id
+		info["img"] = v.Img
+		info["like"] = v.Like
+		info["title"] = v.Title
+	}
+	nv, err1 := models.GetNextArticlesById(id)
+	if err1 == nil{
+		nextAticle := make(map[string]interface{})
+		nextAticle["id"] = nv.Id
+		nextAticle["title"] = nv.Title
+		info["nextrAticle"] = nextAticle
+	}
+
+	pv, err2 := models.GetPreArticlesById(id)
+	if err2 == nil {
+		prevAticle := make(map[string]interface{})
+		prevAticle["id"] = pv.Id
+		prevAticle["title"] = pv.Title
+		info["prevArticle"] = prevAticle
+	}
+
+	if err != nil {
+		c.Data["json"] = Error(400,"该文章已下架或删除了！！")
+	} else {
+		c.Data["json"] = Success(info)
+	}
+	//o := orm.NewOrm()
+	//o.QueryTable("tags").Filter("classify")
 	c.ServeJSON()
 }
 
@@ -187,7 +219,7 @@ func (c *ArticlesController) List() {
 		o := orm.NewOrm()
 		num,err := o.QueryTable("articles").Filter("deleted_at__isnull", true).Count()
 		if err != nil {
-			c.Data["json"] = Error(err.Error())
+			c.Data["json"] = Error(400,err.Error())
 		}else{
 			// 当前页码和其实查询偏移量
 			CurrentPage := int(v["page"].(float64))
@@ -201,7 +233,7 @@ func (c *ArticlesController) List() {
 			c.Data["json"] = Success(page)
 		}
 	}else{
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	}
 	c.ServeJSON()
 }
@@ -234,7 +266,7 @@ func (c *ArticlesController) Classify() {
 		c.Data["json"] = Success(res)
 	} else {
 		beego.Info(err.Error())
-		c.Data["json"] = Error(err.Error())
+		c.Data["json"] = Error(400,err.Error())
 	}
 	c.ServeJSON()
 }
